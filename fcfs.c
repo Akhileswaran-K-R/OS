@@ -123,7 +123,7 @@ void ganttChart(queue q){
 
   printf("+");
   for(int i=0;i<q.box;i++){
-    printf("-----------");
+    printf("----------------");
   }
   printf("\b+\n");
 
@@ -131,18 +131,18 @@ void ganttChart(queue q){
   printf("|");
   for(int i=0;i<=q.rear;i++){
     if(n < q.p[i].at){
-      printf("   Idle   |");
+      printf("\t\bIdle\t|");
       n = q.p[i].at;
       i--;
     }else{
-      printf("    %s    |",q.p[i].name);
+      printf("\t%s\t|",q.p[i].name);
       n = q.p[i].ct;
     }
   }
 
   printf("\n+");
   for(int i=0;i<q.box;i++){
-    printf("-----------");
+    printf("----------------");
   }
   printf("\b+\n");
 
@@ -150,19 +150,11 @@ void ganttChart(queue q){
   printf("0");
   for(int i=0;i<=q.rear;i++){
     if(n < q.p[i].at){
-      if(q.p[i].at < 10){
-        printf("          %d",q.p[i].at);
-      }else{
-        printf("         %d",q.p[i].at);
-      }
+      printf("\t\t%d",q.p[i].at);
       n = q.p[i].at;
       i--;
     }else{
-      if(q.p[i].ct < 10){
-        printf("          %d",q.p[i].ct);
-      }else{
-        printf("         %d",q.p[i].ct);
-      }
+      printf("\t\t%d",q.p[i].ct);
       n = q.p[i].ct;
     }
   }
