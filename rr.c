@@ -2,14 +2,14 @@
 #include<string.h>
 
 struct process{
-  int pid, at, bt, tt, ct, wt;
+  int pid, at, bt, tt, ct, wt, rt;
   char name[5];
 };
 
 typedef struct process process;
 
 process p[20];
-int rear = -1, box = 0;
+int rear = -1, box = 0, tq,nrq;
 float avgtt, avgwt;
 
 void enqueue(process p1){
@@ -41,6 +41,7 @@ void enqueue(process p1){
 void accept(){
   int n;
   process p1;
+  box = 0;
   printf("Enter the no: of process: ");
   scanf("%d",&n);
 
@@ -59,27 +60,57 @@ void accept(){
     printf("Burst time: ");
     scanf("%d",&p1.bt);
 
+    p1.rt = p1.bt;
+    box += p1.bt;
+
     enqueue(p1);
   }
+
+  printf("\nEnter the time quantum: ");
+  scanf("%d",&tq);
 }
 
-void calculate(){
-  int ct = 0;
+void calculate(process *rq[]){
+  int ct = 0,nop = rear+1,i =0,j = 0;
   float wt = 0,tt = 0;
 
-  for(int i=0;i<=rear;i++){
-    if(ct < p[i].at){
-      ct = p[i].at;
-      box++;
-    }
-    p[i].ct = ct + p[i].bt;
-    p[i].tt = p[i].ct - p[i].at;
-    p[i].wt = p[i].tt - p[i].bt;
-    box++;
+  rq[i] = &p[j];
+  j++;
+  nrq = 0;
+  while(nop > 0){
+    if(rq[i]->rt <= tq){
+      ct += rq[i]->rt;
+      rq[i]->rt = 0;
+      rq[i]->ct = ct;
+      nop--;
 
-    ct = p[i].ct;
-    tt += p[i].tt;
-    wt += p[i].wt;
+      rq[i]->tt = rq[i]->ct - rq[i]->at;
+      rq[i]->wt = rq[i]->tt - rq[i]->bt;
+      wt += rq[i]->wt;
+      tt += rq[i]->tt;
+    }else{
+      rq[i]->rt -= tq;
+      ct += tq;
+    }
+
+    if(j <= rear){
+      while(j <= rear && p[j].at <= ct){
+        rq[++nrq] = &p[j];
+        j++;
+      }
+    }
+
+    if(rq[i]->rt != 0){
+      rq[++nrq] = rq[i];
+    }
+    
+    if(i == nrq){
+      rq[++nrq] = &p[j];
+      ct = p[j].at;
+      box++;
+      j++;
+    }
+    i++;
   }
 
   avgtt = tt/(rear+1);
@@ -140,7 +171,8 @@ void ganttChart(){
 
 void main(){
   accept();
-  calculate();
+  process *rq[box/tq + 1];
+  calculate(rq);
   display();
-  ganttChart();
+  //ganttChart();
 }

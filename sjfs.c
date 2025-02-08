@@ -2,63 +2,45 @@
 #include<string.h>
 
 struct process{
-  int pid;
-  int at;
-  int bt;
-  int tt;
-  int ct;
-  int wt;
+  int pid, at, bt, tt, ct, wt;
   char name[5];
 };
 
 typedef struct process process;
 
-struct queue{
-  process p[20];
-  int rear;
-  int box;
-  float avgtt;
-  float avgwt;
-};
+process p[20];
+int rear = -1, box = 0;
+float avgtt, avgwt;
 
-typedef struct queue queue;
-
-int isEmpty(queue *q){
-  if(q->rear == -1){
-    return 1;
-  }
-  return 0;
-}
-
-void enqueue(queue *q,process p){
-  if(isEmpty(q) || q->p[q->rear].at < p.at){
-    q->p[++(q->rear)] = p;
+void enqueue(process p1){
+  if(rear == -1 || p[rear].at < p1.at){
+    p[++(rear)] = p1;
     return;
   }
 
-  if(q->p[q->rear].at >= p.at){
-    int i = q->rear;
-    while(q->p[i].at >= p.at && i > -1){
-      if(q->p[i].at == p.at){
-        if(q->p[i].bt > p.bt || (q->p[i].bt == p.bt && q->p[i].pid > p.pid)){
-          q->p[i+1] = q->p[i];
+  if(p[rear].at >= p1.at){
+    int i = rear;
+    while(p[i].at >= p1.at && i > -1){
+      if(p[i].at == p1.at){
+        if(p[i].bt > p1.bt || (p[i].bt == p1.bt && p[i].pid > p1.pid)){
+          p[i+1] = p[i];
         }else{
           break;
         }
       }else{
-        q->p[i+1] = q->p[i];
+        p[i+1] = p[i];
       }
       i--;
     }
 
-    q->p[i+1] = p;
-    q->rear++;
+    p[i+1] = p1;
+    rear++;
   }
 }
 
-void accept(queue *q){
+void accept(){
   int n;
-  process p;
+  process p1;
   printf("Enter the no: of process: ");
   scanf("%d",&n);
 
@@ -68,125 +50,118 @@ void accept(queue *q){
     sprintf(str,"%d",i+1);
     strcat(name,str);
 
-    strcpy(p.name,name);
+    strcpy(p1.name,name);
     printf("\nEnter the details of P%d\n",i+1);
     printf("Pid: ");
-    scanf("%d",&p.pid);
+    scanf("%d",&p1.pid);
     printf("Arrival time: ");
-    scanf("%d",&p.at);
+    scanf("%d",&p1.at);
     printf("Burst time: ");
-    scanf("%d",&p.bt);
+    scanf("%d",&p1.bt);
 
-    enqueue(q,p);
+    enqueue(p1);
   }
-
 }
 
-void findShort(queue *q,int start,int end){
-  process temp = q->p[start+1];
+void findShort(int start,int end){
+  process temp = p[start+1];
   int j = start+1;
   for(int i=start+2;i<end;i++){
-    if(q->p[i].bt < temp.bt || (q->p[i].bt == temp.bt && (q->p[i].at < temp.at || (q->p[i].at == temp.at && q->p[i].pid < temp.pid)))){
-      temp = q->p[i];
+    if(p[i].bt < temp.bt || (p[i].bt == temp.bt && (p[i].at < temp.at || (p[i].at == temp.at && p[i].pid < temp.pid)))){
+      temp = p[i];
       j = i;
     }
   }
 
-  temp = q->p[start+1];
-  q->p[start+1] = q->p[j];
-  q->p[j] = temp;
+  temp = p[start+1];
+  p[start+1] = p[j];
+  p[j] = temp;
 }
 
-void calculate(queue *q){
+void calculate(){
   int ct = 0;
   float wt = 0,tt = 0;
-  q->box = 0;
 
-  for(int i=0;i<=q->rear;i++){
-    if(ct < q->p[i].at){
-      ct = q->p[i].at;
-      i--;
-      q->box++;
-      continue;
+  for(int i=0;i<=rear;i++){
+    if(ct < p[i].at){
+      ct = p[i].at;
+      box++;
     }
-    q->p[i].ct = ct + q->p[i].bt;
-    q->p[i].tt = q->p[i].ct - q->p[i].at;
-    q->p[i].wt = q->p[i].tt - q->p[i].bt;
-    q->box++;
+    p[i].ct = ct + p[i].bt;
+    p[i].tt = p[i].ct - p[i].at;
+    p[i].wt = p[i].tt - p[i].bt;
+    box++;
 
-    ct = q->p[i].ct;
-    tt += q->p[i].tt;
-    wt += q->p[i].wt;
+    ct = p[i].ct;
+    tt += p[i].tt;
+    wt += p[i].wt;
 
     int j = i+1;
-    while(j <= q->rear && q->p[j].at <= ct){
+    while(j <= rear && p[j].at <= ct){
       j++;
     }
-    findShort(q,i,j);
+    findShort(i,j);
   }
 
-  q->avgtt = tt/(q->rear+1);
-  q->avgwt = wt/(q->rear+1);
+  avgtt = tt/(rear+1);
+  avgwt = wt/(rear+1);
 }
 
-void display(queue q){
+void display(){
   printf("\nPname\tPid\tAT\tBT\tCT\tTT\tWT\n");
-  for(int i=0;i<=q.rear;i++){
-    printf("%s\t%d\t%d\t%d\t%d\t%d\t%d\n",q.p[i].name,q.p[i].pid,q.p[i].at,q.p[i].bt,q.p[i].ct,q.p[i].tt,q.p[i].wt);
+  for(int i=0;i<=rear;i++){
+    printf("%s\t%d\t%d\t%d\t%d\t%d\t%d\n",p[i].name,p[i].pid,p[i].at,p[i].bt,p[i].ct,p[i].tt,p[i].wt);
   }
 
-  printf("\nAverage TT = %.2f ms",q.avgtt);
-  printf("\nAverage WT = %.2f ms",q.avgwt);
+  printf("\nAverage TT = %.2f ms",avgtt);
+  printf("\nAverage WT = %.2f ms",avgwt);
 }
 
-void ganttChart(queue q){
+void ganttChart(){
   printf("\n\nGantt Chart\n\n");
 
   printf("+");
-  for(int i=0;i<q.box;i++){
+  for(int i=0;i<box;i++){
     printf("----------------");
   }
   printf("\b+\n");
 
   int n = 0;
   printf("|");
-  for(int i=0;i<=q.rear;i++){
-    if(n < q.p[i].at){
+  for(int i=0;i<=rear;i++){
+    if(n < p[i].at){
       printf("\t\bIdle\t|");
-      n = q.p[i].at;
+      n = p[i].at;
       i--;
     }else{
-      printf("\t%s\t|",q.p[i].name);
-      n = q.p[i].ct;
+      printf("\t%s\t|",p[i].name);
+      n = p[i].ct;
     }
   }
 
   printf("\n+");
-  for(int i=0;i<q.box;i++){
+  for(int i=0;i<box;i++){
     printf("----------------");
   }
   printf("\b+\n");
 
   n = 0;
   printf("0");
-  for(int i=0;i<=q.rear;i++){
-    if(n < q.p[i].at){
-      printf("\t\t%d",q.p[i].at);
-      n = q.p[i].at;
+  for(int i=0;i<=rear;i++){
+    if(n < p[i].at){
+      printf("\t\t%d",p[i].at);
+      n = p[i].at;
       i--;
     }else{
-      printf("\t\t%d",q.p[i].ct);
-      n = q.p[i].ct;
+      printf("\t\t%d",p[i].ct);
+      n = p[i].ct;
     }
   }
 }
 
 void main(){
-  queue q;
-  q.rear=-1;
-
-  accept(&q);
-  calculate(&q);
-  display(q);
-  ganttChart(q);
+  accept();
+  calculate();
+  display();
+  ganttChart();
 }
