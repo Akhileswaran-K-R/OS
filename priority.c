@@ -133,9 +133,9 @@ void calculate(queue *q){
 }
 
 void display(queue q){
-  printf("\nPname\tPid\tAT\tBT\tCT\tTT\tWT\n");
+  printf("\nPname\tPid\tAT\tBT\tP\tCT\tTT\tWT\n");
   for(int i=0;i<=q.rear;i++){
-    printf("%s\t%d\t%d\t%d\t%d\t%d\t%d\n",q.p[i].name,q.p[i].pid,q.p[i].at,q.p[i].bt,q.p[i].ct,q.p[i].tt,q.p[i].wt);
+    printf("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",q.p[i].name,q.p[i].pid,q.p[i].at,q.p[i].bt,q.p[i].pri,q.p[i].ct,q.p[i].tt,q.p[i].wt);
   }
 
   printf("\nAverage TT = %.2f ms",q.avgtt);
