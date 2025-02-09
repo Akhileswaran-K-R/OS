@@ -73,9 +73,15 @@ void accept(){
 void calculate(process *rq[]){
   int ct = 0,nop = rear+1,i =0,j = 0;
   float wt = 0,tt = 0;
+  box = 0;
 
   rq[i] = &p[j];
+  if(p[j].at > 0){
+    box++;
+    ct = p[j].at;
+  }
   j++;
+
   nrq = 0;
   while(nop > 0){
     if(rq[i]->rt <= tq){
@@ -93,11 +99,9 @@ void calculate(process *rq[]){
       ct += tq;
     }
 
-    if(j <= rear){
-      while(j <= rear && p[j].at <= ct){
-        rq[++nrq] = &p[j];
-        j++;
-      }
+    while(j <= rear && p[j].at <= ct){
+      rq[++nrq] = &p[j];
+      j++;
     }
 
     if(rq[i]->rt != 0){
@@ -127,52 +131,60 @@ void display(){
   printf("\nAverage WT = %.2f ms",avgwt);
 }
 
-void ganttChart(){
+void ganttChart(process *rq[]){
   printf("\n\nGantt Chart\n\n");
 
   printf("+");
-  for(int i=0;i<box;i++){
+  for(int i=0;i<box+nrq-1;i++){
     printf("----------------");
   }
   printf("\b+\n");
 
   int n = 0;
   printf("|");
-  for(int i=0;i<=rear;i++){
-    if(n < p[i].at){
+  for(int i=0;i<nrq;i++){
+    if(n < rq[i]->at){
       printf("\t\bIdle\t|");
-      n = p[i].at;
+      n = rq[i]->at;
       i--;
     }else{
-      printf("\t%s\t|",p[i].name);
-      n = p[i].ct;
+      printf("\t%s\t|",rq[i]->name);
+      if(n + tq > rq[i]->ct){
+        n = rq[i]->ct;
+      }else{
+        n = n + tq;
+      }
     }
   }
 
   printf("\n+");
-  for(int i=0;i<box;i++){
+  for(int i=0;i<box+nrq-1;i++){
     printf("----------------");
   }
   printf("\b+\n");
 
   n = 0;
   printf("0");
-  for(int i=0;i<=rear;i++){
-    if(n < p[i].at){
-      printf("\t\t%d",p[i].at);
-      n = p[i].at;
+  for(int i=0;i<nrq;i++){
+    if(n < rq[i]->at){
+      printf("\t\t%d",rq[i]->at);
+      n = rq[i]->at;
       i--;
     }else{
-      printf("\t\t%d",p[i].ct);
-      n = p[i].ct;
+      if(n + tq > rq[i]->ct){
+        n = rq[i]->ct;
+      }else{
+        n = n + tq;
+      }
+      printf("\t\t%d",n);
     }
   }
 }
 
 void main(){
   accept();
-  process *rq[box/tq + 1];
+  process *rq[box/tq + 2];
   calculate(rq);
   display();
-  //ganttChart();
+  ganttChart(rq);
 }
