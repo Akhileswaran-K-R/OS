@@ -72,26 +72,19 @@ void LRU(int frames[],int f,int pages[],int n,float *fault){
 }
 
 void LFU(int frames[],int f,int pages[],int n,float *fault){
-  int freq[f],recent[f],index;
+  int freq[f],index;
   initialise(freq,f);
-  initialise(recent,f);
 
   for(int i=0;i<n;i++){
     index = isFound(frames,f,pages[i]);
 
     if(index == -1){
-      index = 0;
-      for(int j=1;j<f;j++){
-        if(freq[j] < freq[index] || (freq[j] == freq[index] && recent[j] < recent[index])){
-          index = j;
-        }
-      }
+      index = findMin(freq,f);
       frames[index] = pages[i];
       *fault = *fault + 1;
-      freq[index] = 1;
-      recent[index] = i;
+      freq[index] = i;
     }else{
-      freq[index]++;
+      freq[index] += n;
     }
 
     printf("Stage %d: ",i+1);
