@@ -141,6 +141,7 @@ void main(){
       break;
       case 4: exit(0);
       default: printf("\nWrong choice entered\n");
+      continue;
     }
 
     displayRatio(fault,n);
