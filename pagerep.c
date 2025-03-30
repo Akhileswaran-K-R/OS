@@ -93,6 +93,49 @@ void LFU(int frames[],int f,int pages[],int n,float *fault){
   }
 }
 
+int findMax(int arr[],int recent[],int n){
+  int index = 0;
+  for(int i=1;i<n;i++){
+    if(arr[i] > arr[index] || (arr[i] == arr[index] && recent[i] < recent[index])){
+      index = i;
+    }
+  }
+  return index;
+}
+
+void optimal(int frames[],int f,int pages[],int n,float *fault){
+  int future[f],recent[f],j=0;
+  for(int i=0;i<f;i++){
+    future[i] = 500;
+  }
+  initialise(recent,f);
+
+  for(int i=0;i<n;i++){
+    j = isFound(frames,f,pages[i]);
+
+    if(j == -1){
+      j = findMax(future,recent,f);
+      frames[j] = pages[i];
+      *fault = *fault + 1;
+    }
+
+    int futIndex = 500;
+    for(int k=i+1;k<n;k++){
+      if(pages[i] == pages[k]){
+        futIndex = k;
+        break;
+      }
+    }
+
+    future[j] = futIndex;
+    recent[j] = i;
+
+    printf("Stage %d: ",i+1);
+    displayFrames(frames,f);
+    printf("\n");
+  }
+}
+
 void displayRatio(float fault,int n){
   printf("\nPage Fault: %d",(int)fault);
   printf("\nPage Hit: %d",(int)(n - fault));
@@ -123,7 +166,8 @@ void main(){
     printf("1.FIFO\n");
     printf("2.LRU\n");
     printf("3.LFU\n");
-    printf("4.Exit\n");
+    printf("4.Optimal\n");
+    printf("5.Exit\n");
 
     scanf("%d",&c);
     initialise(frames,f);
@@ -133,13 +177,21 @@ void main(){
       case 1: printf("\nFIFO\n\n");
               FIFO(frames,f,pages,n,&fault);
       break;
+
       case 2: printf("\nLRU\n\n");
               LRU(frames,f,pages,n,&fault);
       break;
+
       case 3: printf("\nLFU\n\n");
               LFU(frames,f,pages,n,&fault);
       break;
-      case 4: exit(0);
+
+      case 4: printf("\nOptimal\n\n");
+              optimal(frames,f,pages,n,&fault);
+      break;
+
+      case 5: exit(0);
+
       default: printf("\nWrong choice entered\n");
       continue;
     }
