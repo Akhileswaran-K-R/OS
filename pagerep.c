@@ -116,6 +116,7 @@ void optimal(int frames[],int f,int pages[],int n,float *fault){
     if(j == -1){
       j = findMax(future,recent,f);
       frames[j] = pages[i];
+      recent[j] = i;
       *fault = *fault + 1;
     }
 
@@ -126,9 +127,7 @@ void optimal(int frames[],int f,int pages[],int n,float *fault){
         break;
       }
     }
-
     future[j] = futIndex;
-    recent[j] = i;
 
     printf("Stage %d: ",i+1);
     displayFrames(frames,f);

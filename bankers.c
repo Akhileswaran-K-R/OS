@@ -88,16 +88,7 @@ void display(int m,int n,int alloc[][n],int max[][n],int need[][n],int available
   }
 }
 
-void main(){
-  int m,n;
-  printf("Enter the no: of processes: ");
-  scanf("%d",&m);
-  printf("Enter the no: of resources: ");
-  scanf("%d",&n);
-  
-  int alloc[m][n],max[m][n],need[m][n],available[m+1][n],safeseq[m];
-  accept(m,n,alloc,max,need,available);
-  
+void result(int m,int n,int alloc[][n],int max[][n],int need[][n],int available[][n],int safeseq[]){
   if(isSafe(m,n,alloc,max,need,available,safeseq)){
     display(m,n,alloc,max,need,available);
 
@@ -108,5 +99,45 @@ void main(){
     }
   }else{
     printf("\nSystem is in unsafe state");
+  }
+}
+
+int request(int id,int n,int available[][n],int need[][n],int alloc[][n],int req[]){
+  for(int i=0;i<n;i++){
+    if(req[i] > available[0][i] || req[i] > need[id][i]){
+      return 0;
+    }
+
+    alloc[id][i] += req[i];
+    available[0][i] -= req[i];
+    need[id][i] -= req[i];
+  }
+  return 1;
+}
+
+void main(){
+  int m,n;
+  printf("Enter the no: of processes: ");
+  scanf("%d",&m);
+  printf("Enter the no: of resources: ");
+  scanf("%d",&n);
+  
+  int alloc[m][n],max[m][n],need[m][n],available[m+1][n],safeseq[m];
+  accept(m,n,alloc,max,need,available);
+  result(m,n,alloc,max,need,available,safeseq);
+
+  int id,req[n];
+  printf("\n\nEnter the id of the proccess requesting: ");
+  scanf("%d",&id);
+  printf("Enter the request: ");
+  for(int i=0;i<n;i++){
+    scanf("%d",&req[i]);
+  }
+
+  if(request(id-1,n,available,need,alloc,req)){
+    printf("\nThe request can be granted\n");
+    result(m,n,alloc,max,need,available,safeseq);
+  }else{
+    printf("\nThe request cannot be granted\n");
   }
 }
